@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import {
   LayoutDashboard,
   CalendarDays,
@@ -9,26 +10,28 @@ import {
   Wallet,
   ScrollText,
   Scissors,
+  User,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 type NavItem = {
   label: string;
   icon: LucideIcon;
-  active?: boolean;
+  to: string;
   adminOnly?: boolean;
 };
 
 const items: NavItem[] = [
-  { label: "Board", icon: LayoutDashboard, active: true },
-  { label: "Calendar", icon: CalendarDays },
-  { label: "Clients", icon: Users },
-  { label: "Workers", icon: UserCog, adminOnly: true },
-  { label: "Punch", icon: Clock },
-  { label: "Timetable", icon: CalendarClock },
-  { label: "Stock", icon: Package, adminOnly: true },
-  { label: "Finances", icon: Wallet, adminOnly: true },
-  { label: "Audit", icon: ScrollText, adminOnly: true },
+  { label: "Board", icon: LayoutDashboard, to: "/" },
+  { label: "Calendar", icon: CalendarDays, to: "/calendar" },
+  { label: "Clients", icon: Users, to: "/clients" },
+  { label: "Workers", icon: UserCog, to: "/workers", adminOnly: true },
+  { label: "Me", icon: User, to: "/me" },
+  { label: "Punch", icon: Clock, to: "/punch" },
+  { label: "Rota", icon: CalendarClock, to: "/timetable" },
+  { label: "Stock", icon: Package, to: "/stock", adminOnly: true },
+  { label: "Money", icon: Wallet, to: "/finances", adminOnly: true },
+  { label: "Audit", icon: ScrollText, to: "/audit", adminOnly: true },
 ];
 
 export function Sidebar() {
@@ -37,31 +40,30 @@ export function Sidebar() {
       aria-label="Primary"
       className="w-24 flex-none flex flex-col items-center py-6 border-r border-border bg-card"
     >
-      <div className="size-12 bg-primary rounded-2xl mb-10 flex items-center justify-center text-primary-foreground shadow-sm">
+      <Link
+        to="/"
+        aria-label="Pawline"
+        className="size-12 bg-primary rounded-2xl mb-8 flex items-center justify-center text-primary-foreground shadow-sm"
+      >
         <Scissors className="size-5" strokeWidth={2.25} />
-      </div>
+      </Link>
 
-      <ul className="flex flex-col gap-3">
+      <ul className="flex flex-col gap-2">
         {items.map((item) => {
           const Icon = item.icon;
           return (
             <li key={item.label}>
-              <button
-                type="button"
-                aria-current={item.active ? "page" : undefined}
+              <Link
+                to={item.to}
                 title={item.label}
-                className={
-                  "group size-14 rounded-2xl flex flex-col items-center justify-center gap-0.5 transition-colors " +
-                  (item.active
-                    ? "bg-primary/10 text-primary"
-                    : "text-ink-muted hover:bg-black/5 hover:text-ink")
-                }
+                activeOptions={{ exact: item.to === "/" }}
+                className="group size-14 rounded-2xl flex flex-col items-center justify-center gap-0.5 transition-colors text-ink-muted hover:bg-black/5 hover:text-ink data-[status=active]:bg-primary/10 data-[status=active]:text-primary"
               >
                 <Icon className="size-5" strokeWidth={1.75} />
                 <span className="text-[9px] font-medium uppercase tracking-wider">
                   {item.label}
                 </span>
-              </button>
+              </Link>
             </li>
           );
         })}
