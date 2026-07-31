@@ -33,7 +33,7 @@ function WorkersPage() {
         </button>
       }
     >
-      <div className="flex-1 grid grid-cols-[380px_1fr] gap-6 px-4 sm:px-6 lg:px-10 pb-6 lg:pb-10 min-h-0">
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-6 px-4 sm:px-6 lg:px-10 pb-6 lg:pb-10 min-h-0">
         <aside className="bg-card rounded-3xl ring-1 ring-black/5 shadow-sm overflow-y-auto">
           <ul className="divide-y divide-border">
             {workers.map((w) => (
@@ -81,13 +81,13 @@ function WorkersPage() {
             </button>
           </div>
 
-          <div className="p-8 grid grid-cols-2 gap-6">
+          <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Wage — sensitive */}
             <div className="rounded-2xl ring-1 ring-accent/25 bg-accent/5 p-5 col-span-2">
               <div className="flex items-center gap-2 text-accent text-[11px] uppercase tracking-widest font-bold">
                 <Lock className="size-3.5" /> Admin-only · wage details
               </div>
-              <div className="mt-4 grid grid-cols-3 gap-6">
+              <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-6">
                 <div>
                   <p className="text-[10px] uppercase tracking-widest text-ink-muted">Current rate</p>
                   <p className="text-2xl font-mono font-medium text-ink mt-1">€14.50<span className="text-sm text-ink-muted"> / h</span></p>

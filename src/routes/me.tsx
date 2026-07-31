@@ -29,7 +29,7 @@ function MePage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <MetricCard label="Hours this week" value="26.5" hint="of 32h scheduled" />
             <MetricCard label="Hours this month" value="112.0" hint="Oct 1 – 24" />
             <MetricCard label="Hours this year" value="1,204" hint="2026 YTD" />
@@ -40,7 +40,7 @@ function MePage() {
               <Info className="size-3.5" />
               Estimated earnings — not a payslip
             </div>
-            <div className="mt-5 grid grid-cols-3 gap-6">
+            <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-6">
               <div>
                 <p className="text-[10px] uppercase tracking-widest opacity-60">This week</p>
                 <p className="text-3xl font-mono font-medium mt-1">€318.00</p>
@@ -63,7 +63,7 @@ function MePage() {
                 <Plus className="size-3.5" /> Request leave
               </button>
             </div>
-            <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
               <MiniStat label="Balance" value="14.5d" />
               <MiniStat label="Used YTD" value="7.5d" />
               <MiniStat label="Pending" value="2.0d" tone="accent" />
