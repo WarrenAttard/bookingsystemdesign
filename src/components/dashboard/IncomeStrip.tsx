@@ -11,20 +11,20 @@ const stats: Stat[] = [
 
 export function IncomeStrip() {
   return (
-    <section className="px-10 pb-6 flex-none">
-      <div className="bg-ink text-background rounded-3xl p-1 flex items-center shadow-lg shadow-ink/10">
+    <section className="px-4 sm:px-6 lg:px-10 pb-4 lg:pb-6 flex-none">
+      <div className="bg-ink text-background rounded-3xl p-3 lg:p-1 grid grid-cols-2 lg:flex lg:items-center gap-2 lg:gap-0 shadow-lg shadow-ink/10">
         {stats.map((s, i) => (
           <div
             key={s.label}
             className={
-              "flex-1 px-7 py-3 " +
-              (i < stats.length - 1 ? "border-r border-background/10" : "")
+              "lg:flex-1 px-3 py-2 lg:px-7 lg:py-3 " +
+              (i < stats.length - 1 ? "lg:border-r lg:border-background/10" : "")
             }
           >
             <p className="text-[10px] uppercase tracking-widest opacity-60 mb-1">
               {s.label}
             </p>
-            <p className="text-xl font-mono font-medium leading-none">
+            <p className="text-lg lg:text-xl font-mono font-medium leading-none">
               {s.value}
             </p>
             {s.hint && (
@@ -34,10 +34,10 @@ export function IncomeStrip() {
             )}
           </div>
         ))}
-        <div className="pr-2 pl-2">
+        <div className="col-span-2 lg:pr-2 lg:pl-2">
           <button
             type="button"
-            className="h-12 px-5 bg-accent text-accent-foreground rounded-2xl font-bold text-sm transition-transform active:scale-95 hover:brightness-105 flex items-center gap-2"
+            className="h-12 w-full lg:w-auto px-5 bg-accent text-accent-foreground rounded-2xl font-bold text-sm transition-transform active:scale-95 hover:brightness-105 flex items-center justify-center gap-2"
           >
             Open Finances
             <ArrowUpRight className="size-4" />

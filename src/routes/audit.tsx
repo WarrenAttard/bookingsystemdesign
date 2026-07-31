@@ -45,9 +45,9 @@ const entries: Entry[] = [
 function AuditPage() {
   return (
     <AppShell title="Audit Trail" subtitle="Sensitive changes only">
-      <div className="flex-1 overflow-y-auto px-10 pb-10">
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-10 pb-6 lg:pb-10">
         <div className="bg-card rounded-3xl ring-1 ring-black/5 shadow-sm p-6 mb-6">
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             <FilterInput label="Actor" placeholder="Any user" icon={User} />
             <FilterInput label="Action" placeholder="Any action" icon={ShieldAlert} />
             <FilterInput label="Entity" placeholder="Client, dog, product…" icon={ScrollText} />

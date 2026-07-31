@@ -17,8 +17,8 @@ export const Route = createFileRoute("/punch")({
 function PunchPage() {
   return (
     <AppShell title="Kiosk" subtitle="Shop floor time clock">
-      <div className="flex-1 overflow-hidden px-10 pb-10">
-        <div className="h-full grid grid-cols-[1.2fr_1fr] gap-6">
+      <div className="flex-1 overflow-hidden px-4 sm:px-6 lg:px-10 pb-6 lg:pb-10">
+        <div className="h-full grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-6">
           {/* Kiosk keypad */}
           <div className="bg-ink text-background rounded-3xl p-10 flex flex-col shadow-xl shadow-ink/10">
             <div className="flex items-start justify-between">

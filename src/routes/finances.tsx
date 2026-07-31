@@ -25,7 +25,7 @@ function FinancesPage() {
         </button>
       }
     >
-      <div className="flex-1 overflow-y-auto px-10 pb-10">
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-10 pb-6 lg:pb-10">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-1 bg-card ring-1 ring-black/5 rounded-2xl p-1">
             {["Week", "Month", "Quarter", "Year", "Custom"].map((p, i) => (
@@ -45,13 +45,13 @@ function FinancesPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           <BigStat label="Income" value="€28,412" hint="+8% vs Sep" tone="primary" />
           <BigStat label="Expenses" value="€19,204" hint="wages · rent · supplies" />
           <BigStat label="Est. Profit" value="€9,208" hint="32% margin" tone="accent" />
         </div>
 
-        <div className="grid grid-cols-[1.4fr_1fr] gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-6">
           <div className="bg-card rounded-3xl ring-1 ring-black/5 shadow-sm p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-bold uppercase tracking-widest text-ink-muted">Income by source</h3>

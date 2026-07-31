@@ -51,7 +51,7 @@ function Dashboard() {
   return (
     <AppShell title="Today" subtitle="October 24">
       <IncomeStrip />
-      <div className="flex-1 overflow-x-auto px-10 pb-10">
+      <div className="flex-1 overflow-x-auto px-4 sm:px-6 lg:px-10 pb-6 lg:pb-10">
         <div className="flex gap-6 h-full min-w-max">
           <StatusColumn title="Booked" tone="booked" dogs={booked} delay={40} />
           <StatusColumn title="Pending" tone="pending" dogs={pending} delay={100} />
