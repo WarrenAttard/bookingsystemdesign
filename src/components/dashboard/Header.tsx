@@ -1,5 +1,6 @@
 import { Bell, Search } from "lucide-react";
 import type { ReactNode } from "react";
+import logo from "@/assets/logo.png.asset.json";
 
 type HeaderProps = {
   title: string;
@@ -20,7 +21,13 @@ export function Header({
 }: HeaderProps) {
   return (
     <header className="px-4 sm:px-6 lg:px-10 py-4 lg:h-20 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 lg:flex lg:justify-between flex-none">
-      <div className="min-w-0">
+      <div className="flex min-w-0 items-center gap-3">
+        <img
+          src={logo.url}
+          alt="Trusted Dog Groomers logo"
+          className="md:hidden size-10 shrink-0 rounded-xl object-cover ring-1 ring-black/5"
+        />
+        <div className="min-w-0">
         <h1 className="text-lg sm:text-xl lg:text-2xl font-semibold tracking-tight text-ink truncate">
           {title}
           {subtitle && (
@@ -29,6 +36,10 @@ export function Header({
             </span>
           )}
         </h1>
+          <p className="hidden lg:block text-[10px] uppercase tracking-[0.2em] text-ink-muted">
+            Trusted Dog Groomers
+          </p>
+        </div>
       </div>
 
       <div className="flex items-center gap-2 lg:gap-3 shrink-0">
