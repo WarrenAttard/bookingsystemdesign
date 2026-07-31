@@ -19,7 +19,7 @@ export function Header({
   actions,
 }: HeaderProps) {
   return (
-    <header className="h-20 px-10 flex items-center justify-between flex-none">
+    <header className="h-20 px-4 sm:px-6 lg:px-10 flex items-center justify-between flex-none">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-ink">
           {title}

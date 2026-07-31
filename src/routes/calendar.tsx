@@ -57,7 +57,7 @@ function CalendarPage() {
         </div>
       }
     >
-      <div className="px-10 pb-4 flex items-center justify-between flex-none">
+      <div className="px-4 sm:px-6 lg:px-10 pb-4 flex items-center justify-between flex-none">
         <div className="flex items-center gap-2">
           <button className="size-10 rounded-xl bg-card ring-1 ring-black/5 flex items-center justify-center text-ink-muted hover:text-ink">
             <ChevronLeft className="size-4" />
@@ -73,7 +73,7 @@ function CalendarPage() {
         </button>
       </div>
 
-      <div className="flex-1 overflow-auto px-10 pb-10">
+      <div className="flex-1 overflow-auto px-4 sm:px-6 lg:px-10 pb-6 lg:pb-10">
         <div className="bg-card rounded-3xl ring-1 ring-black/5 shadow-sm p-6">
           <div
             className="grid gap-3"

@@ -17,7 +17,7 @@ export const Route = createFileRoute("/me")({
 function MePage() {
   return (
     <AppShell title="My Profile" subtitle="This month" role="Employee">
-      <div className="flex-1 overflow-y-auto px-10 pb-10">
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-10 pb-6 lg:pb-10">
         <div className="max-w-3xl mx-auto space-y-6">
           <div className="bg-card rounded-3xl ring-1 ring-black/5 shadow-sm p-8">
             <div className="flex items-center gap-5">

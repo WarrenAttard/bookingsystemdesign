@@ -62,7 +62,7 @@ function TimetablePage() {
         </button>
       }
     >
-      <div className="flex-1 overflow-auto px-10 pb-10">
+      <div className="flex-1 overflow-auto px-4 sm:px-6 lg:px-10 pb-6 lg:pb-10">
         <div className="bg-card rounded-3xl ring-1 ring-black/5 shadow-sm p-6">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-4 text-xs">

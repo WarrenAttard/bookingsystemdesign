@@ -11,7 +11,7 @@ const stats: Stat[] = [
 
 export function IncomeStrip() {
   return (
-    <section className="px-10 pb-6 flex-none">
+    <section className="px-4 sm:px-6 lg:px-10 pb-6 flex-none">
       <div className="bg-ink text-background rounded-3xl p-1 flex items-center shadow-lg shadow-ink/10">
         {stats.map((s, i) => (
           <div

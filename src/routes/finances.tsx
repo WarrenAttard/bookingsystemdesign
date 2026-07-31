@@ -25,7 +25,7 @@ function FinancesPage() {
         </button>
       }
     >
-      <div className="flex-1 overflow-y-auto px-10 pb-10">
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-10 pb-6 lg:pb-10">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-1 bg-card ring-1 ring-black/5 rounded-2xl p-1">
             {["Week", "Month", "Quarter", "Year", "Custom"].map((p, i) => (

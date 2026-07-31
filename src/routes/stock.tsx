@@ -40,7 +40,7 @@ function StockPage() {
         </button>
       }
     >
-      <div className="flex-1 overflow-y-auto px-10 pb-10">
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-10 pb-6 lg:pb-10">
         <div className="grid grid-cols-3 gap-4 mb-6">
           <SummaryCard label="Retail products" value="14" hint="€1,240 on shelf" />
           <SummaryCard label="Internal supplies" value="9" hint="Est. 3 weeks cover" />

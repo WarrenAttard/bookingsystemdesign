@@ -35,7 +35,7 @@ function ClientsPage() {
         </button>
       }
     >
-      <div className="flex-1 grid grid-cols-[380px_1fr] gap-6 px-10 pb-10 min-h-0">
+      <div className="flex-1 grid grid-cols-[380px_1fr] gap-6 px-4 sm:px-6 lg:px-10 pb-6 lg:pb-10 min-h-0">
         {/* List */}
         <aside className="bg-card rounded-3xl ring-1 ring-black/5 shadow-sm flex flex-col min-h-0">
           <div className="p-4 border-b border-border">
