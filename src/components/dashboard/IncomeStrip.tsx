@@ -37,7 +37,7 @@ export function IncomeStrip() {
         <div className="col-span-2 lg:pr-2 lg:pl-2">
           <button
             type="button"
-            className="h-12 w-full lg:w-auto px-5 bg-accent text-accent-foreground rounded-2xl font-bold text-sm transition-transform active:scale-95 hover:brightness-105 flex items-center justify-center gap-2"
+            className="h-12 w-full lg:w-auto px-5 bg-primary text-primary-foreground rounded-2xl font-bold text-sm transition-transform active:scale-95 hover:brightness-105 flex items-center justify-center gap-2"
           >
             Open Finances
             <ArrowUpRight className="size-4" />
