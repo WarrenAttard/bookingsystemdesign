@@ -58,8 +58,8 @@ function StockPage() {
             </div>
           </div>
 
-          <div className="divide-y divide-border">
-            <div className="grid grid-cols-[2fr_100px_120px_120px_100px_100px] px-6 py-2 text-[10px] uppercase tracking-widest text-ink-muted font-bold">
+          <div className="divide-y divide-border overflow-x-auto">
+            <div className="grid grid-cols-[2fr_100px_120px_120px_100px_100px] min-w-[760px] px-6 py-2 text-[10px] uppercase tracking-widest text-ink-muted font-bold">
               <span>Product</span>
               <span>Category</span>
               <span className="text-right">On hand</span>
@@ -68,7 +68,7 @@ function StockPage() {
               <span className="text-right">Status</span>
             </div>
             {products.map((p) => (
-              <div key={p.name} className="grid grid-cols-[2fr_100px_120px_120px_100px_100px] px-6 py-3 items-center text-sm">
+              <div key={p.name} className="grid grid-cols-[2fr_100px_120px_120px_100px_100px] min-w-[760px] px-6 py-3 items-center text-sm">
                 <div>
                   <p className="font-semibold text-ink">{p.name}</p>
                   <p className="text-xs text-ink-muted">SKU · PW-{p.name.length}0{p.stock}</p>
@@ -96,7 +96,7 @@ function StockPage() {
             </div>
             <button className="text-xs font-semibold text-primary hover:underline">Full ledger →</button>
           </div>
-          <ul className="divide-y divide-border">
+          <ul className="divide-y divide-border overflow-x-auto">
             {[
               { d: "Oct 22", t: "Use", q: "−1", who: "Alex S. · Coco groom", bal: 3 },
               { d: "Oct 20", t: "Use", q: "−1", who: "Maria R. · Bear groom", bal: 4 },
@@ -104,7 +104,7 @@ function StockPage() {
               { d: "Oct 12", t: "Correction", q: "−1", who: "Admin · miscount", bal: -1, warn: true },
               { d: "Oct 04", t: "Use", q: "−1", who: "Jonas T. · Daisy groom", bal: 0 },
             ].map((m, i) => (
-              <li key={i} className="grid grid-cols-[70px_100px_80px_1fr_80px] items-center py-3 text-sm">
+              <li key={i} className="grid grid-cols-[70px_100px_80px_1fr_80px] min-w-[520px] items-center py-3 text-sm">
                 <span className="font-mono text-xs text-ink-muted">{m.d}</span>
                 <span className="text-ink font-medium">{m.t}</span>
                 <span className={"font-mono font-bold " + (m.pos ? "text-primary" : m.warn ? "text-accent" : "text-ink-muted")}>{m.q}</span>
