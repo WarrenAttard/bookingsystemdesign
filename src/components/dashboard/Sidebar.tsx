@@ -9,10 +9,10 @@ import {
   Package,
   Wallet,
   ScrollText,
-  Scissors,
   User,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import logo from "@/assets/logo.png.asset.json";
 
 type NavItem = {
   label: string;
@@ -48,9 +48,13 @@ export function Sidebar() {
         <Link
           to="/"
           aria-label="Pawline"
-          className="size-12 bg-primary rounded-2xl mb-8 flex items-center justify-center text-primary-foreground shadow-sm"
+          className="size-14 rounded-2xl mb-8 overflow-hidden ring-1 ring-black/5 shadow-sm bg-card"
         >
-          <Scissors className="size-5" strokeWidth={2.25} />
+          <img
+            src={logo.url}
+            alt="Trusted Dog Groomers logo"
+            className="size-full object-cover"
+          />
         </Link>
 
         <ul className="flex flex-col gap-2">
