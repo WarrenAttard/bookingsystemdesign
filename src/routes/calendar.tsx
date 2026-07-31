@@ -57,7 +57,7 @@ function CalendarPage() {
         </div>
       }
     >
-      <div className="px-4 sm:px-6 lg:px-10 pb-4 flex items-center justify-between flex-none">
+      <div className="px-4 sm:px-6 lg:px-10 pb-4 flex flex-wrap items-center gap-3 justify-between flex-none">
         <div className="flex items-center gap-2">
           <button className="size-10 rounded-xl bg-card ring-1 ring-black/5 flex items-center justify-center text-ink-muted hover:text-ink">
             <ChevronLeft className="size-4" />
@@ -66,7 +66,7 @@ function CalendarPage() {
           <button className="size-10 rounded-xl bg-card ring-1 ring-black/5 flex items-center justify-center text-ink-muted hover:text-ink">
             <ChevronRight className="size-4" />
           </button>
-          <span className="ml-3 text-sm text-ink-muted">3 groomers on the floor · 24 of 28 slots</span>
+          <span className="hidden sm:inline ml-3 text-sm text-ink-muted">3 groomers on the floor · 24 of 28 slots</span>
         </div>
         <button className="h-10 px-5 rounded-2xl bg-accent text-accent-foreground text-sm font-bold flex items-center gap-2 shadow-sm">
           <Plus className="size-4" /> New appointment
@@ -74,7 +74,7 @@ function CalendarPage() {
       </div>
 
       <div className="flex-1 overflow-auto px-4 sm:px-6 lg:px-10 pb-6 lg:pb-10">
-        <div className="bg-card rounded-3xl ring-1 ring-black/5 shadow-sm p-6">
+        <div className="bg-card rounded-3xl ring-1 ring-black/5 shadow-sm p-4 sm:p-6 min-w-[640px]">
           <div
             className="grid gap-3"
             style={{ gridTemplateColumns: "80px repeat(3, minmax(0, 1fr))" }}
