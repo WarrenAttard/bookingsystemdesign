@@ -383,19 +383,22 @@ function DayGrid({
                       </span>
                     </button>
                   )}
-                  {here.map((a) => (
+                  {here.map((a, i) => (
                     <button
                       key={a.id}
                       onClick={() => onSelect(a.id)}
                       style={{
                         height: `${a.span * ROW - 8}px`,
                         top: `${(a.start - Math.floor(a.start)) * ROW + 4}px`,
+                        left: `calc(${(i / here.length) * 100}% + 4px)`,
+                        width: `calc(${100 / here.length}% - 8px)`,
                       }}
                       className={
-                        "absolute left-1 right-1 z-10 text-left rounded-xl px-3 py-2 shadow-sm hover:brightness-95 transition " +
+                        "absolute z-10 text-left rounded-xl px-3 py-2 shadow-sm hover:brightness-95 transition " +
                         STATUS_META[a.status].block
                       }
                     >
+
                       <div className="flex items-center justify-between">
                         <p className="text-sm font-bold leading-none truncate">{a.dog}</p>
                         {a.warn && <AlertTriangle className="size-3.5 shrink-0" strokeWidth={2.5} />}
