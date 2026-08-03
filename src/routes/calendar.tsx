@@ -197,7 +197,17 @@ function CalendarPage() {
   };
 
   const create = (a: Omit<Appt, "id" | "status">) => {
+    const clash = appts.some(
+      (x) =>
+        x.groomer === a.groomer &&
+        x.date === a.date &&
+        x.status !== "cancelled" &&
+        a.start < x.start + x.span &&
+        x.start < a.start + a.span,
+    );
+    if (clash) toast.warning(`${a.groomer} already has a dog in that slot`);
     const id = `n${Date.now()}`;
+
     setAppts((prev) => [...prev, { ...a, id, status: "booked" }]);
     setDraft(null);
     toast.success(`${a.dog} booked with ${a.groomer} at ${fmtTime(a.start)}`);
