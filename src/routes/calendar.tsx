@@ -339,6 +339,11 @@ function CalendarPage() {
   const [future, setFuture] = useState<Data[]>([]);
   const [log, setLog] = useState<LogEntry[]>([]);
   const [view, setView] = useState<"day" | "week">("week");
+  // phones get the single-day view by default — a 7-day grid is unreadable there
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.matchMedia("(max-width: 639px)").matches) setView("day");
+  }, []);
+
   const [cursor, setCursor] = useState<Date>(ANCHOR);
   const [hidden, setHidden] = useState<string[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
@@ -911,9 +916,8 @@ type DragState = {
 };
 
 function layout(list: Appt[]) {
-  const sorted = [...list].sort((a, b) => a.start - b.start || a.span - b.span);
-  const lanes: Appt[][] = [];
-  const placement = new Map<string, { lane: number; of: number }>();
+  const sorted = [...list].sort((a, b) => a.start - b.start || b.span - a.span);
+  const placement = new Map<string, { lane: number; of: number; cols: number }>();
   const clusters: Appt[][] = [];
   let cluster: Appt[] = [];
   let clusterEnd = -1;
@@ -929,8 +933,11 @@ function layout(list: Appt[]) {
   }
   if (cluster.length) clusters.push(cluster);
 
+  const overlaps = (x: Appt, y: Appt) => x.start < y.start + y.span && y.start < x.start + x.span;
+
   for (const c of clusters) {
     const ends: number[] = [];
+    const laneOf = new Map<string, number>();
     for (const a of c) {
       let lane = ends.findIndex((e) => e <= a.start);
       if (lane === -1) {
@@ -938,16 +945,24 @@ function layout(list: Appt[]) {
         ends.push(0);
       }
       ends[lane] = a.start + a.span;
-      placement.set(a.id, { lane, of: 0 });
+      laneOf.set(a.id, lane);
     }
+    const of = Math.max(ends.length, 1);
     for (const a of c) {
-      const p = placement.get(a.id)!;
-      placement.set(a.id, { lane: p.lane, of: ends.length });
+      const lane = laneOf.get(a.id)!;
+      // grow rightwards into free lanes so cards stay readable
+      let cols = 1;
+      while (lane + cols < of) {
+        const blocked = c.some((b) => b.id !== a.id && laneOf.get(b.id) === lane + cols && overlaps(a, b));
+        if (blocked) break;
+        cols += 1;
+      }
+      placement.set(a.id, { lane, of, cols });
     }
   }
-  void lanes;
   return placement;
 }
+
 
 function TimeGrid({
   days,
@@ -1048,10 +1063,14 @@ function TimeGrid({
   return (
     <section
       aria-label={days.length === 1 ? `Schedule for ${fmtLong(days[0])}` : "Week schedule"}
-      className="bg-card rounded-3xl ring-1 ring-black/5 shadow-sm p-4 sm:p-6 min-w-[720px]"
+      className={
+        "bg-card rounded-3xl ring-1 ring-black/5 shadow-sm p-3 sm:p-6 " +
+        (days.length === 1 ? "min-w-0" : "min-w-[720px]")
+      }
     >
-      <div className="flex gap-2">
-        <div className="w-14 shrink-0">
+      <div className="flex gap-1.5 sm:gap-2">
+        <div className="w-10 sm:w-14 shrink-0">
+
           <div className="h-14" />
           <div className="relative" style={{ height }} aria-hidden="true">
             {[...HOURS, CLOSING].map((h) => (
@@ -1068,7 +1087,7 @@ function TimeGrid({
 
         <div
           ref={colsRef}
-          className="grid flex-1 gap-2"
+          className="grid flex-1 gap-1.5 sm:gap-2"
           style={{ gridTemplateColumns: `repeat(${days.length}, minmax(0, 1fr))` }}
         >
           {days.map((d) => (
@@ -1115,10 +1134,18 @@ function TimeGrid({
                   const dragging = drag?.id === a.id;
                   if (dragging && drag.preview.date !== key) return null;
                   const pos = dragging ? drag.preview : a;
-                  const p = place.get(a.id) ?? { lane: 0, of: 1 };
+                  const p = place.get(a.id) ?? { lane: 0, of: 1, cols: 1 };
                   const lanes = Math.max(p.of, 1);
+                  const cols = Math.max(1, Math.min(p.cols, lanes - p.lane));
+                  const widthPct = (cols / lanes) * 100;
+                  const leftPct = (p.lane / lanes) * 100;
+                  // when crowded, cards overlap slightly like Google Calendar
+                  const crowded = lanes > 1;
+                  const indent = crowded ? p.lane * 4 : 0;
+                  const bleed = crowded && p.lane + cols < lanes ? 12 : 0;
                   const st = groomerStyle(a.groomer);
                   const compact = pos.span <= 0.75;
+                  const narrow = widthPct < 48;
                   return (
                     <div
                       key={a.id}
@@ -1128,35 +1155,46 @@ function TimeGrid({
                       onKeyDown={(e) => onKey(e, a)}
                       onPointerDown={(e) => startDrag(e, a, "move")}
                       onClick={() => !drag && onSelect(a.id)}
-                      style={{
-                        top: (pos.start - OPENING) * ROW + 2,
-                        height: pos.span * ROW - 4,
-                        left: `calc(${(p.lane / lanes) * 100}% + 3px)`,
-                        width: `calc(${100 / lanes}% - 6px)`,
-                      }}
+                      style={
+                        {
+                          top: (pos.start - OPENING) * ROW + 2,
+                          height: pos.span * ROW - 4,
+                          "--l": `calc(${leftPct}% + ${3 + indent}px)`,
+                          "--w": `calc(${widthPct}% - ${6 + indent}px + ${bleed}px)`,
+                          zIndex: dragging ? 60 : 10 + p.lane,
+                        } as React.CSSProperties
+                      }
                       className={
-                        "absolute z-10 select-none touch-none overflow-hidden rounded-lg px-2 py-1 shadow-sm cursor-grab active:cursor-grabbing focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink " +
-                        (dragging ? "ring-2 ring-ink shadow-lg z-20 " : "hover:brightness-[0.97] ") +
+                        "absolute left-[var(--l)] w-[var(--w)] transition-[left,width,box-shadow] duration-150 select-none touch-none overflow-hidden rounded-lg px-2 py-1 cursor-grab active:cursor-grabbing focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink " +
+                        (crowded && !dragging
+                          ? "hover:left-[3px] hover:w-[calc(100%-6px)] hover:z-50 focus-within:left-[3px] focus-within:w-[calc(100%-6px)] focus-within:z-50 "
+                          : "") +
+                        (crowded ? "shadow-md ring-1 ring-white/70 " : "shadow-sm ") +
+                        (dragging ? "ring-2 ring-ink shadow-lg " : "hover:brightness-[0.97] hover:shadow-lg ") +
+
                         (a.status === "cancelled" ? "line-through opacity-60 " : "") +
                         (a.status === "done" ? "opacity-75 " : "") +
                         st.block
                       }
                     >
                       <div className="flex items-center gap-1">
-                        <p className="text-xs font-bold leading-tight truncate flex-1">{a.dog}</p>
-                        {a.seriesId && <Repeat className="size-3 shrink-0 opacity-70" aria-hidden="true" />}
+                        <p className="text-[11px] sm:text-xs font-bold leading-tight truncate flex-1">{a.dog}</p>
+                        {a.seriesId && !narrow && <Repeat className="size-3 shrink-0 opacity-70" aria-hidden="true" />}
                         {a.warn && <AlertTriangle className="size-3 shrink-0" aria-hidden="true" />}
                       </div>
                       {!compact && (
                         <>
-                          <p className="text-[10px] font-mono opacity-75 leading-tight">
-                            {fmtTime(pos.start)}–{fmtTime(pos.start + pos.span)}
+                          <p className="text-[10px] font-mono opacity-75 leading-tight truncate">
+                            {narrow ? fmtTime(pos.start) : `${fmtTime(pos.start)}–${fmtTime(pos.start + pos.span)}`}
                           </p>
-                          <p className="text-[10px] opacity-75 truncate">
-                            {a.service} · {a.groomer}
-                          </p>
+                          {!narrow && (
+                            <p className="text-[10px] opacity-75 truncate">
+                              {a.service} · {a.groomer}
+                            </p>
+                          )}
                         </>
                       )}
+
                       <span
                         role="slider"
                         tabIndex={0}
@@ -1185,7 +1223,7 @@ function TimeGrid({
                             "resized",
                           );
                         }}
-                        className="absolute inset-x-0 bottom-0 h-2.5 flex items-center justify-center cursor-ns-resize opacity-50 hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
+                        className="absolute inset-x-0 bottom-0 h-4 sm:h-2.5 flex items-center justify-center cursor-ns-resize opacity-50 hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
                       >
                         <GripHorizontal className="size-3" aria-hidden="true" />
                       </span>
