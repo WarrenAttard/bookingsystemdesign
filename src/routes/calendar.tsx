@@ -339,6 +339,11 @@ function CalendarPage() {
   const [future, setFuture] = useState<Data[]>([]);
   const [log, setLog] = useState<LogEntry[]>([]);
   const [view, setView] = useState<"day" | "week">("week");
+  // phones get the single-day view by default — a 7-day grid is unreadable there
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.matchMedia("(max-width: 639px)").matches) setView("day");
+  }, []);
+
   const [cursor, setCursor] = useState<Date>(ANCHOR);
   const [hidden, setHidden] = useState<string[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
