@@ -1218,24 +1218,28 @@ function TimeGrid({
                       aria-label={`${describe(a)}. Arrow keys move, shift plus up or down resizes, Enter opens details, Delete removes.`}
                       onKeyDown={(e) => onKey(e, a)}
                       onPointerDown={(e) => startDrag(e, a, "move")}
-                      onClick={() => !drag && onSelect(a.id)}
+                      onClick={() => {
+                        if (drag || suppressClick.current) return;
+                        onSelect(a.id);
+                      }}
                       style={
                         {
                           top: (pos.start - OPENING) * ROW + 2,
                           height: pos.span * ROW - 4,
                           "--l": `calc(${leftPct}% + ${3 + indent}px)`,
                           "--w": `calc(${widthPct}% - ${6 + indent}px + ${bleed}px)`,
-                          zIndex: dragging ? 60 : 10 + p.lane,
+                          zIndex: dragging ? 60 : pressing === a.id ? 50 : 10 + p.lane,
                         } as React.CSSProperties
                       }
                       className={
-                        "absolute left-[var(--l)] w-[var(--w)] transition-[left,width,box-shadow] duration-150 select-none touch-none overflow-hidden rounded-lg px-2 py-1 cursor-grab active:cursor-grabbing focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink " +
+                        "absolute left-[var(--l)] w-[var(--w)] transition-[left,width,box-shadow,transform] duration-150 select-none overflow-hidden rounded-lg px-2 py-1 cursor-grab active:cursor-grabbing focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink " +
+                        (dragging ? "touch-none " : "touch-pan-y ") +
                         (crowded && !dragging
                           ? "hover:left-[3px] hover:w-[calc(100%-6px)] hover:z-50 focus-within:left-[3px] focus-within:w-[calc(100%-6px)] focus-within:z-50 "
                           : "") +
                         (crowded ? "shadow-md ring-1 ring-white/70 " : "shadow-sm ") +
-                        (dragging ? "ring-2 ring-ink shadow-lg " : "hover:brightness-[0.97] hover:shadow-lg ") +
-
+                        (dragging ? "ring-2 ring-ink shadow-lg scale-[1.02] " : "hover:brightness-[0.97] hover:shadow-lg ") +
+                        (pressing === a.id ? "ring-2 ring-ink/60 scale-[1.02] " : "") +
                         (a.status === "cancelled" ? "line-through opacity-60 " : "") +
                         (a.status === "done" ? "opacity-75 " : "") +
                         st.block
@@ -1259,6 +1263,21 @@ function TimeGrid({
                         </>
                       )}
 
+                      {/* touch-only grab handle: drag starts immediately from here */}
+                      <span
+                        role="button"
+                        tabIndex={-1}
+                        aria-label={`Drag handle for ${a.dog}`}
+                        onPointerDown={(e) => {
+                          e.stopPropagation();
+                          startDrag(e, a, "move", true);
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                        className="hidden [@media(pointer:coarse)]:flex absolute top-0 right-0 size-7 touch-none items-start justify-end pt-1 pr-1 opacity-60 active:opacity-100"
+                      >
+                        <GripVertical className="size-3.5" aria-hidden="true" />
+                      </span>
+
                       <span
                         role="slider"
                         tabIndex={0}
@@ -1269,7 +1288,7 @@ function TimeGrid({
                         aria-valuetext={`${pos.span} hours`}
                         onPointerDown={(e) => {
                           e.stopPropagation();
-                          startDrag(e, a, "resize");
+                          startDrag(e, a, "resize", true);
                         }}
                         onClick={(e) => e.stopPropagation()}
                         onKeyDown={(e) => {
@@ -1287,10 +1306,12 @@ function TimeGrid({
                             "resized",
                           );
                         }}
-                        className="absolute inset-x-0 bottom-0 h-4 sm:h-2.5 flex items-center justify-center cursor-ns-resize opacity-50 hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
+                        className="absolute inset-x-0 bottom-0 h-2.5 [@media(pointer:coarse)]:h-6 touch-none flex items-end justify-center pb-0.5 cursor-ns-resize opacity-60 hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
                       >
-                        <GripHorizontal className="size-3" aria-hidden="true" />
+                        <span className="h-1 w-8 max-w-[70%] rounded-full bg-current opacity-70 [@media(pointer:fine)]:hidden" aria-hidden="true" />
+                        <GripHorizontal className="size-3 [@media(pointer:coarse)]:hidden" aria-hidden="true" />
                       </span>
+
                     </div>
                   );
                 })}
