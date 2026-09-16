@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/dashboard/AppShell";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -552,8 +552,8 @@ function AvailabilityBoard({
           ))}
 
           {staff.map((s) => (
-            <>
-              <div key={s.id} className="py-3 px-2 flex items-start gap-3">
+            <Fragment key={s.id}>
+              <div className="py-3 px-2 flex items-start gap-3">
                 <div className="size-9 rounded-xl bg-gradient-to-br from-primary/25 to-accent/25 ring-1 ring-black/5 flex items-center justify-center text-[11px] font-bold text-ink shrink-0">
                   {s.initials}
                 </div>
@@ -676,7 +676,7 @@ function AvailabilityBoard({
                   </div>
                 );
               })}
-            </>
+            </Fragment>
           ))}
         </div>
       </div>
