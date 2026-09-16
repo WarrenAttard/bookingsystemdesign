@@ -981,10 +981,27 @@ function TimeGrid({
 }) {
   const colsRef = useRef<HTMLDivElement>(null);
   const [drag, setDrag] = useState<DragState | null>(null);
+  const [pressing, setPressing] = useState<string | null>(null);
+  const pressTimer = useRef<number | null>(null);
+  const lastYRef = useRef<number | null>(null);
+  const suppressClick = useRef(false);
   const dragRef = useRef<DragState | null>(null);
   dragRef.current = drag;
   const height = HOURS.length * ROW;
   const dayKeys = days.map(iso);
+
+  // track the finger/cursor so a long-press pick-up starts from the right place
+  useEffect(() => {
+    const track = (e: PointerEvent) => {
+      lastYRef.current = e.clientY;
+    };
+    window.addEventListener("pointermove", track, { passive: true });
+    window.addEventListener("pointerdown", track, { passive: true });
+    return () => {
+      window.removeEventListener("pointermove", track);
+      window.removeEventListener("pointerdown", track);
+    };
+  }, []);
 
   useEffect(() => {
     if (!drag) return;
@@ -992,6 +1009,7 @@ function TimeGrid({
       const d = dragRef.current;
       const box = colsRef.current;
       if (!d || !box) return;
+      e.preventDefault();
       const rect = box.getBoundingClientRect();
       const delta = (e.clientY - d.pointerStartY) / ROW;
       if (d.mode === "move") {
@@ -1008,17 +1026,31 @@ function TimeGrid({
       const d = dragRef.current;
       setDrag(null);
       if (!d) return;
+      suppressClick.current = true;
+      window.setTimeout(() => {
+        suppressClick.current = false;
+      }, 250);
       const appt = appts.find((a) => a.id === d.id);
       if (appt) onMove(appt, d.preview, d.mode === "resize" ? "resized" : "moved");
     };
-    window.addEventListener("pointermove", move);
+    window.addEventListener("pointermove", move, { passive: false });
     window.addEventListener("pointerup", up);
+    window.addEventListener("pointercancel", up);
     return () => {
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", up);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drag, appts, onMove, days.length]);
+
+  useEffect(
+    () => () => {
+      if (pressTimer.current) window.clearTimeout(pressTimer.current);
+    },
+    [],
+  );
+
 
   const startDrag = (e: React.PointerEvent, a: Appt, mode: "move" | "resize", immediate = false) => {
     if (e.button !== 0) return;
