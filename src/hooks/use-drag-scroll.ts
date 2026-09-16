@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 const INTERACTIVE =
-  "input, textarea, select, button, a, [role='button'], [role='slider'], [contenteditable='true'], [data-no-drag-scroll], [data-appt-card]";
+  "input, textarea, select, button, a, label, [role='button'], [role='slider'], [role='tab'], [role='dialog'], [role='option'], [contenteditable='true'], [data-no-drag-scroll], [data-appt-card], [data-drag-handle], [draggable='true']";
 
 function scrollableAncestor(el: Element | null): HTMLElement | null {
   let node: Element | null = el;
