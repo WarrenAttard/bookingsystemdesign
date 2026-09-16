@@ -1125,10 +1125,18 @@ function TimeGrid({
                   const dragging = drag?.id === a.id;
                   if (dragging && drag.preview.date !== key) return null;
                   const pos = dragging ? drag.preview : a;
-                  const p = place.get(a.id) ?? { lane: 0, of: 1 };
+                  const p = place.get(a.id) ?? { lane: 0, of: 1, cols: 1 };
                   const lanes = Math.max(p.of, 1);
+                  const cols = Math.max(1, Math.min(p.cols, lanes - p.lane));
+                  const widthPct = (cols / lanes) * 100;
+                  const leftPct = (p.lane / lanes) * 100;
+                  // when crowded, cards overlap slightly like Google Calendar
+                  const crowded = lanes > 1;
+                  const indent = crowded ? p.lane * 4 : 0;
+                  const bleed = crowded && p.lane + cols < lanes ? 12 : 0;
                   const st = groomerStyle(a.groomer);
                   const compact = pos.span <= 0.75;
+                  const narrow = widthPct < 48;
                   return (
                     <div
                       key={a.id}
@@ -1141,32 +1149,37 @@ function TimeGrid({
                       style={{
                         top: (pos.start - OPENING) * ROW + 2,
                         height: pos.span * ROW - 4,
-                        left: `calc(${(p.lane / lanes) * 100}% + 3px)`,
-                        width: `calc(${100 / lanes}% - 6px)`,
+                        left: `calc(${leftPct}% + ${3 + indent}px)`,
+                        width: `calc(${widthPct}% - ${6 + indent}px + ${bleed}px)`,
+                        zIndex: dragging ? 30 : 10 + p.lane,
                       }}
                       className={
-                        "absolute z-10 select-none touch-none overflow-hidden rounded-lg px-2 py-1 shadow-sm cursor-grab active:cursor-grabbing focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink " +
-                        (dragging ? "ring-2 ring-ink shadow-lg z-20 " : "hover:brightness-[0.97] ") +
+                        "absolute select-none touch-none overflow-hidden rounded-lg px-2 py-1 cursor-grab active:cursor-grabbing focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink " +
+                        (crowded ? "shadow-md ring-1 ring-white/70 " : "shadow-sm ") +
+                        (dragging ? "ring-2 ring-ink shadow-lg " : "hover:brightness-[0.97] hover:shadow-lg ") +
                         (a.status === "cancelled" ? "line-through opacity-60 " : "") +
                         (a.status === "done" ? "opacity-75 " : "") +
                         st.block
                       }
                     >
                       <div className="flex items-center gap-1">
-                        <p className="text-xs font-bold leading-tight truncate flex-1">{a.dog}</p>
-                        {a.seriesId && <Repeat className="size-3 shrink-0 opacity-70" aria-hidden="true" />}
+                        <p className="text-[11px] sm:text-xs font-bold leading-tight truncate flex-1">{a.dog}</p>
+                        {a.seriesId && !narrow && <Repeat className="size-3 shrink-0 opacity-70" aria-hidden="true" />}
                         {a.warn && <AlertTriangle className="size-3 shrink-0" aria-hidden="true" />}
                       </div>
                       {!compact && (
                         <>
-                          <p className="text-[10px] font-mono opacity-75 leading-tight">
-                            {fmtTime(pos.start)}–{fmtTime(pos.start + pos.span)}
+                          <p className="text-[10px] font-mono opacity-75 leading-tight truncate">
+                            {narrow ? fmtTime(pos.start) : `${fmtTime(pos.start)}–${fmtTime(pos.start + pos.span)}`}
                           </p>
-                          <p className="text-[10px] opacity-75 truncate">
-                            {a.service} · {a.groomer}
-                          </p>
+                          {!narrow && (
+                            <p className="text-[10px] opacity-75 truncate">
+                              {a.service} · {a.groomer}
+                            </p>
+                          )}
                         </>
                       )}
+
                       <span
                         role="slider"
                         tabIndex={0}
