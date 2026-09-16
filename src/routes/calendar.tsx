@@ -1082,7 +1082,7 @@ function TimeGrid({
 
         <div
           ref={colsRef}
-          className="grid flex-1 gap-2"
+          className="grid flex-1 gap-1.5 sm:gap-2"
           style={{ gridTemplateColumns: `repeat(${days.length}, minmax(0, 1fr))` }}
         >
           {days.map((d) => (
@@ -1212,7 +1212,7 @@ function TimeGrid({
                             "resized",
                           );
                         }}
-                        className="absolute inset-x-0 bottom-0 h-2.5 flex items-center justify-center cursor-ns-resize opacity-50 hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
+                        className="absolute inset-x-0 bottom-0 h-4 sm:h-2.5 flex items-center justify-center cursor-ns-resize opacity-50 hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
                       >
                         <GripHorizontal className="size-3" aria-hidden="true" />
                       </span>
