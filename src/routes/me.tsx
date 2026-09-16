@@ -50,9 +50,6 @@ function MePage() {
     >
       <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-10 pb-6 lg:pb-10">
         <div className="max-w-4xl mx-auto space-y-6">
-          <div className="sm:hidden">
-            <ViewSwitch view={view} onChange={setView} />
-          </div>
           {view === "owner" ? <OwnerView /> : <EmployeeView />}
         </div>
       </div>
