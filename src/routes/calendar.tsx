@@ -1020,17 +1020,49 @@ function TimeGrid({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drag, appts, onMove, days.length]);
 
-  const startDrag = (e: React.PointerEvent, a: Appt, mode: "move" | "resize") => {
+  const startDrag = (e: React.PointerEvent, a: Appt, mode: "move" | "resize", immediate = false) => {
     if (e.button !== 0) return;
+    const begin = (y: number) =>
+      setDrag({
+        id: a.id,
+        mode,
+        origin: { date: a.date, start: a.start, span: a.span },
+        pointerStartY: y,
+        preview: { date: a.date, start: a.start, span: a.span },
+      });
+
+    const touch = e.pointerType !== "mouse";
+    if (touch && !immediate) {
+      // long-press to pick a booking up, so a tap still opens it and the page can scroll
+      const startX = e.clientX;
+      const startY = e.clientY;
+      setPressing(a.id);
+      const cleanup = () => {
+        if (pressTimer.current) window.clearTimeout(pressTimer.current);
+        pressTimer.current = null;
+        setPressing(null);
+        window.removeEventListener("pointermove", onCancelMove);
+        window.removeEventListener("pointerup", cleanup);
+        window.removeEventListener("pointercancel", cleanup);
+      };
+      const onCancelMove = (ev: PointerEvent) => {
+        if (Math.hypot(ev.clientX - startX, ev.clientY - startY) > 10) cleanup();
+      };
+      pressTimer.current = window.setTimeout(() => {
+        const y = lastYRef.current ?? startY;
+        cleanup();
+        navigator.vibrate?.(10);
+        begin(y);
+      }, 320);
+      window.addEventListener("pointermove", onCancelMove);
+      window.addEventListener("pointerup", cleanup);
+      window.addEventListener("pointercancel", cleanup);
+      return;
+    }
     e.preventDefault();
-    setDrag({
-      id: a.id,
-      mode,
-      origin: { date: a.date, start: a.start, span: a.span },
-      pointerStartY: e.clientY,
-      preview: { date: a.date, start: a.start, span: a.span },
-    });
+    begin(e.clientY);
   };
+
 
   const onKey = (e: React.KeyboardEvent, a: Appt) => {
     const idx = dayKeys.indexOf(a.date);
