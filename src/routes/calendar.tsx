@@ -12,6 +12,8 @@ import {
   Dog,
   Filter,
   GripHorizontal,
+  GripVertical,
+
   History,
   Layers,
   PlayCircle,
@@ -981,10 +983,27 @@ function TimeGrid({
 }) {
   const colsRef = useRef<HTMLDivElement>(null);
   const [drag, setDrag] = useState<DragState | null>(null);
+  const [pressing, setPressing] = useState<string | null>(null);
+  const pressTimer = useRef<number | null>(null);
+  const lastYRef = useRef<number | null>(null);
+  const suppressClick = useRef(false);
   const dragRef = useRef<DragState | null>(null);
   dragRef.current = drag;
   const height = HOURS.length * ROW;
   const dayKeys = days.map(iso);
+
+  // track the finger/cursor so a long-press pick-up starts from the right place
+  useEffect(() => {
+    const track = (e: PointerEvent) => {
+      lastYRef.current = e.clientY;
+    };
+    window.addEventListener("pointermove", track, { passive: true });
+    window.addEventListener("pointerdown", track, { passive: true });
+    return () => {
+      window.removeEventListener("pointermove", track);
+      window.removeEventListener("pointerdown", track);
+    };
+  }, []);
 
   useEffect(() => {
     if (!drag) return;
@@ -992,6 +1011,7 @@ function TimeGrid({
       const d = dragRef.current;
       const box = colsRef.current;
       if (!d || !box) return;
+      e.preventDefault();
       const rect = box.getBoundingClientRect();
       const delta = (e.clientY - d.pointerStartY) / ROW;
       if (d.mode === "move") {
@@ -1008,29 +1028,75 @@ function TimeGrid({
       const d = dragRef.current;
       setDrag(null);
       if (!d) return;
+      suppressClick.current = true;
+      window.setTimeout(() => {
+        suppressClick.current = false;
+      }, 250);
       const appt = appts.find((a) => a.id === d.id);
       if (appt) onMove(appt, d.preview, d.mode === "resize" ? "resized" : "moved");
     };
-    window.addEventListener("pointermove", move);
+    window.addEventListener("pointermove", move, { passive: false });
     window.addEventListener("pointerup", up);
+    window.addEventListener("pointercancel", up);
     return () => {
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", up);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drag, appts, onMove, days.length]);
 
-  const startDrag = (e: React.PointerEvent, a: Appt, mode: "move" | "resize") => {
+  useEffect(
+    () => () => {
+      if (pressTimer.current) window.clearTimeout(pressTimer.current);
+    },
+    [],
+  );
+
+
+  const startDrag = (e: React.PointerEvent, a: Appt, mode: "move" | "resize", immediate = false) => {
     if (e.button !== 0) return;
+    const begin = (y: number) =>
+      setDrag({
+        id: a.id,
+        mode,
+        origin: { date: a.date, start: a.start, span: a.span },
+        pointerStartY: y,
+        preview: { date: a.date, start: a.start, span: a.span },
+      });
+
+    const touch = e.pointerType !== "mouse";
+    if (touch && !immediate) {
+      // long-press to pick a booking up, so a tap still opens it and the page can scroll
+      const startX = e.clientX;
+      const startY = e.clientY;
+      setPressing(a.id);
+      const cleanup = () => {
+        if (pressTimer.current) window.clearTimeout(pressTimer.current);
+        pressTimer.current = null;
+        setPressing(null);
+        window.removeEventListener("pointermove", onCancelMove);
+        window.removeEventListener("pointerup", cleanup);
+        window.removeEventListener("pointercancel", cleanup);
+      };
+      const onCancelMove = (ev: PointerEvent) => {
+        if (Math.hypot(ev.clientX - startX, ev.clientY - startY) > 10) cleanup();
+      };
+      pressTimer.current = window.setTimeout(() => {
+        const y = lastYRef.current ?? startY;
+        cleanup();
+        navigator.vibrate?.(10);
+        begin(y);
+      }, 320);
+      window.addEventListener("pointermove", onCancelMove);
+      window.addEventListener("pointerup", cleanup);
+      window.addEventListener("pointercancel", cleanup);
+      return;
+    }
     e.preventDefault();
-    setDrag({
-      id: a.id,
-      mode,
-      origin: { date: a.date, start: a.start, span: a.span },
-      pointerStartY: e.clientY,
-      preview: { date: a.date, start: a.start, span: a.span },
-    });
+    begin(e.clientY);
   };
+
 
   const onKey = (e: React.KeyboardEvent, a: Appt) => {
     const idx = dayKeys.indexOf(a.date);
@@ -1154,24 +1220,28 @@ function TimeGrid({
                       aria-label={`${describe(a)}. Arrow keys move, shift plus up or down resizes, Enter opens details, Delete removes.`}
                       onKeyDown={(e) => onKey(e, a)}
                       onPointerDown={(e) => startDrag(e, a, "move")}
-                      onClick={() => !drag && onSelect(a.id)}
+                      onClick={() => {
+                        if (drag || suppressClick.current) return;
+                        onSelect(a.id);
+                      }}
                       style={
                         {
                           top: (pos.start - OPENING) * ROW + 2,
                           height: pos.span * ROW - 4,
                           "--l": `calc(${leftPct}% + ${3 + indent}px)`,
                           "--w": `calc(${widthPct}% - ${6 + indent}px + ${bleed}px)`,
-                          zIndex: dragging ? 60 : 10 + p.lane,
+                          zIndex: dragging ? 60 : pressing === a.id ? 50 : 10 + p.lane,
                         } as React.CSSProperties
                       }
                       className={
-                        "absolute left-[var(--l)] w-[var(--w)] transition-[left,width,box-shadow] duration-150 select-none touch-none overflow-hidden rounded-lg px-2 py-1 cursor-grab active:cursor-grabbing focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink " +
+                        "absolute left-[var(--l)] w-[var(--w)] transition-[left,width,box-shadow,transform] duration-150 select-none overflow-hidden rounded-lg px-2 py-1 cursor-grab active:cursor-grabbing focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink " +
+                        (dragging ? "touch-none " : "touch-pan-y ") +
                         (crowded && !dragging
                           ? "hover:left-[3px] hover:w-[calc(100%-6px)] hover:z-50 focus-within:left-[3px] focus-within:w-[calc(100%-6px)] focus-within:z-50 "
                           : "") +
                         (crowded ? "shadow-md ring-1 ring-white/70 " : "shadow-sm ") +
-                        (dragging ? "ring-2 ring-ink shadow-lg " : "hover:brightness-[0.97] hover:shadow-lg ") +
-
+                        (dragging ? "ring-2 ring-ink shadow-lg scale-[1.02] " : "hover:brightness-[0.97] hover:shadow-lg ") +
+                        (pressing === a.id ? "ring-2 ring-ink/60 scale-[1.02] " : "") +
                         (a.status === "cancelled" ? "line-through opacity-60 " : "") +
                         (a.status === "done" ? "opacity-75 " : "") +
                         st.block
@@ -1195,6 +1265,21 @@ function TimeGrid({
                         </>
                       )}
 
+                      {/* touch-only grab handle: drag starts immediately from here */}
+                      <span
+                        role="button"
+                        tabIndex={-1}
+                        aria-label={`Drag handle for ${a.dog}`}
+                        onPointerDown={(e) => {
+                          e.stopPropagation();
+                          startDrag(e, a, "move", true);
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                        className="hidden [@media(pointer:coarse)]:flex absolute top-0 right-0 size-7 touch-none items-start justify-end pt-1 pr-1 opacity-60 active:opacity-100"
+                      >
+                        <GripVertical className="size-3.5" aria-hidden="true" />
+                      </span>
+
                       <span
                         role="slider"
                         tabIndex={0}
@@ -1205,7 +1290,7 @@ function TimeGrid({
                         aria-valuetext={`${pos.span} hours`}
                         onPointerDown={(e) => {
                           e.stopPropagation();
-                          startDrag(e, a, "resize");
+                          startDrag(e, a, "resize", true);
                         }}
                         onClick={(e) => e.stopPropagation()}
                         onKeyDown={(e) => {
@@ -1223,10 +1308,12 @@ function TimeGrid({
                             "resized",
                           );
                         }}
-                        className="absolute inset-x-0 bottom-0 h-4 sm:h-2.5 flex items-center justify-center cursor-ns-resize opacity-50 hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
+                        className="absolute inset-x-0 bottom-0 h-2.5 [@media(pointer:coarse)]:h-6 touch-none flex items-end justify-center pb-0.5 cursor-ns-resize opacity-60 hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
                       >
-                        <GripHorizontal className="size-3" aria-hidden="true" />
+                        <span className="h-1 w-8 max-w-[70%] rounded-full bg-current opacity-70 [@media(pointer:fine)]:hidden" aria-hidden="true" />
+                        <GripHorizontal className="size-3 [@media(pointer:coarse)]:hidden" aria-hidden="true" />
                       </span>
+
                     </div>
                   );
                 })}
