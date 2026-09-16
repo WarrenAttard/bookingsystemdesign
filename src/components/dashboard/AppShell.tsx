@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
+import { useDragScroll } from "@/hooks/use-drag-scroll";
 
 type AppShellProps = {
   title: string;
@@ -17,6 +18,7 @@ export function AppShell({
   actions,
   children,
 }: AppShellProps) {
+  useDragScroll();
   return (
     <div className="flex min-h-screen md:h-screen w-full md:overflow-hidden bg-background text-foreground">
       <Sidebar />
