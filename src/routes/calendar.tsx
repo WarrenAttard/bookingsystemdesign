@@ -911,9 +911,8 @@ type DragState = {
 };
 
 function layout(list: Appt[]) {
-  const sorted = [...list].sort((a, b) => a.start - b.start || a.span - b.span);
-  const lanes: Appt[][] = [];
-  const placement = new Map<string, { lane: number; of: number }>();
+  const sorted = [...list].sort((a, b) => a.start - b.start || b.span - a.span);
+  const placement = new Map<string, { lane: number; of: number; cols: number }>();
   const clusters: Appt[][] = [];
   let cluster: Appt[] = [];
   let clusterEnd = -1;
@@ -929,8 +928,11 @@ function layout(list: Appt[]) {
   }
   if (cluster.length) clusters.push(cluster);
 
+  const overlaps = (x: Appt, y: Appt) => x.start < y.start + y.span && y.start < x.start + x.span;
+
   for (const c of clusters) {
     const ends: number[] = [];
+    const laneOf = new Map<string, number>();
     for (const a of c) {
       let lane = ends.findIndex((e) => e <= a.start);
       if (lane === -1) {
@@ -938,16 +940,24 @@ function layout(list: Appt[]) {
         ends.push(0);
       }
       ends[lane] = a.start + a.span;
-      placement.set(a.id, { lane, of: 0 });
+      laneOf.set(a.id, lane);
     }
+    const of = Math.max(ends.length, 1);
     for (const a of c) {
-      const p = placement.get(a.id)!;
-      placement.set(a.id, { lane: p.lane, of: ends.length });
+      const lane = laneOf.get(a.id)!;
+      // grow rightwards into free lanes so cards stay readable
+      let cols = 1;
+      while (lane + cols < of) {
+        const blocked = c.some((b) => b.id !== a.id && laneOf.get(b.id) === lane + cols && overlaps(a, b));
+        if (blocked) break;
+        cols += 1;
+      }
+      placement.set(a.id, { lane, of, cols });
     }
   }
-  void lanes;
   return placement;
 }
+
 
 function TimeGrid({
   days,
