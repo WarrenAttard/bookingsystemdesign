@@ -31,7 +31,9 @@ export function useDragScroll() {
     let pointerId = -1;
 
     const onDown = (e: PointerEvent) => {
-      if (e.button !== 0 || e.pointerType === "touch") return;
+      // mouse only — touch/pen keep native scrolling so calendar drag,
+      // tap-to-open and resize handles behave normally on phones
+      if (e.button !== 0 || e.pointerType !== "mouse") return;
       const el = e.target as Element | null;
       if (!el || el.closest(INTERACTIVE)) return;
       const sc = scrollableAncestor(el);
