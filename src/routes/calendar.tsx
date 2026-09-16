@@ -12,6 +12,8 @@ import {
   Dog,
   Filter,
   GripHorizontal,
+  GripVertical,
+
   History,
   Layers,
   PlayCircle,
