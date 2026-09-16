@@ -1150,17 +1150,23 @@ function TimeGrid({
                       onKeyDown={(e) => onKey(e, a)}
                       onPointerDown={(e) => startDrag(e, a, "move")}
                       onClick={() => !drag && onSelect(a.id)}
-                      style={{
-                        top: (pos.start - OPENING) * ROW + 2,
-                        height: pos.span * ROW - 4,
-                        left: `calc(${leftPct}% + ${3 + indent}px)`,
-                        width: `calc(${widthPct}% - ${6 + indent}px + ${bleed}px)`,
-                        zIndex: dragging ? 30 : 10 + p.lane,
-                      }}
+                      style={
+                        {
+                          top: (pos.start - OPENING) * ROW + 2,
+                          height: pos.span * ROW - 4,
+                          "--l": `calc(${leftPct}% + ${3 + indent}px)`,
+                          "--w": `calc(${widthPct}% - ${6 + indent}px + ${bleed}px)`,
+                          zIndex: dragging ? 60 : 10 + p.lane,
+                        } as React.CSSProperties
+                      }
                       className={
-                        "absolute select-none touch-none overflow-hidden rounded-lg px-2 py-1 cursor-grab active:cursor-grabbing focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink " +
+                        "absolute left-[var(--l)] w-[var(--w)] transition-[left,width,box-shadow] duration-150 select-none touch-none overflow-hidden rounded-lg px-2 py-1 cursor-grab active:cursor-grabbing focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink " +
+                        (crowded && !dragging
+                          ? "hover:left-[3px] hover:w-[calc(100%-6px)] hover:z-50 focus-within:left-[3px] focus-within:w-[calc(100%-6px)] focus-within:z-50 "
+                          : "") +
                         (crowded ? "shadow-md ring-1 ring-white/70 " : "shadow-sm ") +
                         (dragging ? "ring-2 ring-ink shadow-lg " : "hover:brightness-[0.97] hover:shadow-lg ") +
+
                         (a.status === "cancelled" ? "line-through opacity-60 " : "") +
                         (a.status === "done" ? "opacity-75 " : "") +
                         st.block
