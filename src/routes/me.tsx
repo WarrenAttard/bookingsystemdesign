@@ -252,7 +252,7 @@ function OwnerView() {
                 const p = r.revenue - (r.payroll + r.supplies + r.rent);
                 return (
                   <div key={r.date} className="flex-1 flex flex-col items-center gap-2 min-w-0">
-                    <div className="w-full flex-1 flex items-end gap-1">
+                    <div className="w-full h-[140px] flex items-end gap-1">
                       <div
                         className="flex-1 rounded-t-lg bg-secondary"
                         style={{ height: `${(r.revenue / peak) * 100}%` }}
