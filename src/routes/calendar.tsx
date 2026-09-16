@@ -1058,10 +1058,14 @@ function TimeGrid({
   return (
     <section
       aria-label={days.length === 1 ? `Schedule for ${fmtLong(days[0])}` : "Week schedule"}
-      className="bg-card rounded-3xl ring-1 ring-black/5 shadow-sm p-4 sm:p-6 min-w-[720px]"
+      className={
+        "bg-card rounded-3xl ring-1 ring-black/5 shadow-sm p-3 sm:p-6 " +
+        (days.length === 1 ? "min-w-0" : "min-w-[720px]")
+      }
     >
-      <div className="flex gap-2">
-        <div className="w-14 shrink-0">
+      <div className="flex gap-1.5 sm:gap-2">
+        <div className="w-10 sm:w-14 shrink-0">
+
           <div className="h-14" />
           <div className="relative" style={{ height }} aria-hidden="true">
             {[...HOURS, CLOSING].map((h) => (
