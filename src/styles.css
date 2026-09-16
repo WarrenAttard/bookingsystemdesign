@@ -124,6 +124,20 @@
 @layer base {
   * {
     border-color: var(--color-border);
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  *::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+
+  .is-drag-scrolling,
+  .is-drag-scrolling * {
+    cursor: grabbing !important;
+    user-select: none !important;
   }
 
   html,
